@@ -1,6 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Optional, List
 from enum import Enum
+from datetime import datetime
+from src.core.exceptions import (
+    InvalidSKUError,
+    InvalidQuantityError,
+    InvalidMinStockAlertError,
+    MinStockAlertExceedsQuantityError,
+    InvalidAmountError,
+    InsufficientStockError
+)
 
 
 class UnitType(Enum):
@@ -38,6 +47,8 @@ class Stock:
         unit: Unit of measurement type
         category: Product category
         min_stock_alert: Optional minimum stock threshold for alerts
+        created_at: Timestamp when stock was created
+        updated_at: Timestamp when stock was last updated
     """
     item_name: str
     sku: str
@@ -45,6 +56,8 @@ class Stock:
     unit: UnitType
     category: Category
     min_stock_alert: Optional[float] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     def __post_init__(self):
         """Validate the stock object after initialization."""
@@ -55,22 +68,20 @@ class Stock:
     def _validate_sku(self):
         """Ensure SKU is not empty."""
         if not self.sku or not self.sku.strip():
-            raise ValueError("SKU cannot be empty")
+            raise InvalidSKUError()
 
     def _validate_quantity(self):
         """Ensure quantity is non-negative."""
         if self.quantity < 0:
-            raise ValueError("Quantity cannot be negative")
+            raise InvalidQuantityError()
 
     def _validate_min_stock_alert(self):
         """Validate minimum stock alert if provided."""
         if self.min_stock_alert is not None:
             if self.min_stock_alert < 0:
-                raise ValueError("Minimum stock alert cannot be negative")
-            # Optionally, ensure min_stock_alert is not greater than current quantity
-            # This is a business decision - commented out as it may not always apply
-            # if self.min_stock_alert > self.quantity:
-            #     raise ValueError("Minimum stock alert cannot exceed current quantity")
+                raise InvalidMinStockAlertError()
+            if self.min_stock_alert > self.quantity:
+                raise MinStockAlertExceedsQuantityError()
 
     def is_low_stock(self) -> bool:
         """
@@ -94,7 +105,7 @@ class Stock:
             ValueError: If amount is not positive
         """
         if amount <= 0:
-            raise ValueError("Amount to add must be positive")
+            raise InvalidAmountError("Amount to add must be positive")
         self.quantity += amount
 
     def remove_stock(self, amount: float):
@@ -108,9 +119,9 @@ class Stock:
             ValueError: If amount is invalid or would result in negative stock
         """
         if amount <= 0:
-            raise ValueError("Amount to remove must be positive")
+            raise InvalidAmountError("Amount to remove must be positive")
         if amount > self.quantity:
-            raise ValueError("Cannot remove more than current stock quantity")
+            raise InsufficientStockError(self.quantity, amount)
         self.quantity -= amount
 
     def set_min_stock_alert(self, threshold: float):
@@ -124,7 +135,7 @@ class Stock:
             ValueError: If threshold is negative
         """
         if threshold < 0:
-            raise ValueError("Minimum stock alert cannot be negative")
+            raise InvalidMinStockAlertError()
         self.min_stock_alert = threshold
 
     def get_stock_status(self) -> str:
@@ -146,7 +157,7 @@ class Stock:
         Returns:
             Dictionary with stock data
         """
-        return {
+        result = {
             "item_name": self.item_name,
             "sku": self.sku,
             "quantity": self.quantity,
@@ -155,3 +166,11 @@ class Stock:
             "min_stock_alert": self.min_stock_alert,
             "status": self.get_stock_status()
         }
+        
+        # Add timestamps if available
+        if self.created_at:
+            result["created_at"] = self.created_at.isoformat()
+        if self.updated_at:
+            result["updated_at"] = self.updated_at.isoformat()
+            
+        return result
