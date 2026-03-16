@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from src.domain.stock import UnitType, Category
 
 
@@ -19,5 +19,5 @@ class Stock(SQLModel, table=True):
     unit: UnitType = Field(default=UnitType.UNITS)
     category: Category = Field(default=Category.CONSUMABLES)
     min_stock_alert: Optional[float] = Field(default=None)
-    created_at: datetime = Field(default_factory=datetime.now(datetime.timezone.utc))
-    updated_at: datetime = Field(default_factory=datetime.now(datetime.timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

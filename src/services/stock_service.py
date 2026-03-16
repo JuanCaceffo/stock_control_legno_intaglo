@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlmodel import Session, select
 from typing import Optional, List
 from src.entities.stock import Stock as DBStock
@@ -56,8 +56,8 @@ class StockService:
             unit=domain_stock.unit,
             category=domain_stock.category,
             min_stock_alert=domain_stock.min_stock_alert,
-            created_at=datetime.now(datetime.timezone.utc),
-            updated_at=datetime.now(datetime.timezone.utc)
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc)
         )
 
         self.db.add(db_stock)
@@ -135,7 +135,7 @@ class StockService:
         
         # Update database entity
         db_stock.quantity = domain_stock.quantity
-        db_stock.updated_at = datetime.now(datetime.timezone.utc)
+        db_stock.updated_at = datetime.now(timezone.utc)
         
         self.db.add(db_stock)
         self.db.commit()
