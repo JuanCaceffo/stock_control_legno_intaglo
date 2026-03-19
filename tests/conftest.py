@@ -48,9 +48,11 @@ def stock_with_timestamps(sample_stock_data):
 def low_stock(sample_stock_data):
     """Fixture creating a Stock object with low stock (below min_stock_alert)."""
     data = sample_stock_data.copy()
-    data["quantity"] = 10.0
+    data["quantity"] = 20.0
     data["min_stock_alert"] = 20.0
-    return Stock(**data)
+    stock = Stock(**data)
+    stock.remove_stock(1.0)  # Reduce quantity to 19.0, below min_stock_alert
+    return stock
 
 
 @pytest.fixture

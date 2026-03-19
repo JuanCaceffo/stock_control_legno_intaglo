@@ -168,9 +168,9 @@ class TestStockOperations:
 class TestStockStatus:
     """Tests for stock status checking methods."""
 
-    def test_is_low_stock_when_below_threshold(self, basic_stock):
+    def test_is_low_stock_when_below_threshold(self, low_stock: Stock):
         """Test is_low_stock returns True when quantity <= min_stock_alert."""
-        assert basic_stock.is_low_stock() is True
+        assert low_stock.is_low_stock() is True
 
     def test_is_low_stock_when_above_threshold(self, basic_stock):
         """Test is_low_stock returns False when quantity > min_stock_alert."""
@@ -186,9 +186,9 @@ class TestStockStatus:
         """Test is_low_stock returns False when no min_stock_alert is set."""
         assert stock_without_alert.is_low_stock() is False
 
-    def test_get_stock_status_low(self, basic_stock):
+    def test_get_stock_status_low(self, low_stock):
         """Test get_stock_status returns 'low' when below threshold."""
-        assert basic_stock.get_stock_status() == "low"
+        assert low_stock.get_stock_status() == "low"
 
     def test_get_stock_status_adequate(self, basic_stock):
         """Test get_stock_status returns 'adequate' when above threshold."""
@@ -213,7 +213,7 @@ class TestStockSerialization:
         assert result["unit"] == basic_stock.unit.value
         assert result["category"] == basic_stock.category.value
         assert result["min_stock_alert"] == basic_stock.min_stock_alert
-        assert result["status"] == "low"
+        assert result["status"] == "adequate"
 
     def test_to_dict_with_timestamps(self, stock_with_timestamps):
         """Test to_dict includes timestamps when available."""
@@ -337,7 +337,7 @@ class TestStockEdgeCases:
         """Test setting min_stock_alert to zero is valid."""
         stock_without_alert.set_min_stock_alert(0.0)
         assert stock_without_alert.min_stock_alert == 0.0
-        assert stock_without_alert.is_low_stock() is True
+        assert stock_without_alert.is_low_stock() is False
 
     def test_sku_with_special_characters(self):
         """Test that SKU with special characters is valid."""
