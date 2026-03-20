@@ -29,8 +29,8 @@ class TestStockInitialization:
         assert basic_stock.item_name == "Test Wood Panel"
         assert basic_stock.sku == "TEST-001"
         assert basic_stock.quantity == 100.0
-        assert basic_stock.unit == UnitType.UNITS
-        assert basic_stock.category == Category.RAW_MATERIAL
+        assert basic_stock.unit == UnitType.UNITS.value
+        assert basic_stock.category == Category.RAW_MATERIAL.value
         assert basic_stock.min_stock_alert == 20.0
         assert basic_stock.created_at is None
         assert basic_stock.updated_at is None
@@ -210,8 +210,8 @@ class TestStockSerialization:
         assert result["item_name"] == basic_stock.item_name
         assert result["sku"] == basic_stock.sku
         assert result["quantity"] == basic_stock.quantity
-        assert result["unit"] == basic_stock.unit.value
-        assert result["category"] == basic_stock.category.value
+        assert result["unit"] == basic_stock.unit
+        assert result["category"] == basic_stock.category
         assert result["min_stock_alert"] == basic_stock.min_stock_alert
         assert result["status"] == "adequate"
 

@@ -14,9 +14,23 @@ class StockCreate(BaseModel):
     item_name: str = Field(..., min_length=1, max_length=200, description="Name of the item")
     sku: str = Field(..., min_length=1, max_length=100, description="Unique stock keeping unit identifier")
     quantity: float = Field(..., ge=0, description="Current quantity in stock (must be >= 0)")
-    unit: UnitType = Field(..., description="Unit of measurement type")
-    category: Category = Field(..., description="Product category")
+    unit: str = Field(..., description="Unit of measurement type")
+    category: str = Field(..., description="Product category")
     min_stock_alert: Optional[float] = Field(None, ge=0, description="Optional minimum stock threshold for alerts")
+
+    @field_validator('unit')
+    @classmethod
+    def validate_unit(cls, v):
+        if v not in [unit.value for unit in UnitType]:
+            raise ValueError(f"Invalid unit: {v}. Allowed: {[unit.value for unit in UnitType]}")
+        return v
+
+    @field_validator('category')
+    @classmethod
+    def validate_category(cls, v):
+        if v not in [cat.value for cat in Category]:
+            raise ValueError(f"Invalid category: {v}. Allowed: {[cat.value for cat in Category]}")
+        return v
 
     @field_validator('min_stock_alert')
     @classmethod

@@ -5,15 +5,6 @@ Pytest configuration and fixtures for the Legno Intaglo Stock API tests.
 import pytest
 from datetime import datetime, timezone
 from src.domain.stock import Stock, UnitType, Category
-from src.core.exceptions import (
-    InvalidSKUError,
-    InvalidQuantityError,
-    InvalidAmountError,
-    InsufficientStockError,
-    InvalidMinStockAlertError,
-    MinStockAlertExceedsQuantityError
-)
-
 
 @pytest.fixture
 def sample_stock_data():
@@ -22,8 +13,8 @@ def sample_stock_data():
         "item_name": "Test Wood Panel",
         "sku": "TEST-001",
         "quantity": 100.0,
-        "unit": UnitType.UNITS,
-        "category": Category.RAW_MATERIAL,
+        "unit": UnitType.UNITS.value,
+        "category": Category.RAW_MATERIAL.value,
         "min_stock_alert": 20.0
     }
 

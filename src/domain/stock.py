@@ -53,16 +53,27 @@ class Stock:
     item_name: str
     sku: str
     quantity: float
-    unit: UnitType
-    category: Category
+    unit: str
+    category: str
     min_stock_alert: Optional[float] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
+    ALLOWED_UNITS = [unit.value for unit in UnitType]
+    ALLOWED_CATEGORIES = [cat.value for cat in Category]
+
     def __post_init__(self):
         """Validate the stock object after initialization."""
+        # Accept enum values or strings for compatibilidad con tests existentes
+        if isinstance(self.unit, UnitType):
+            self.unit = self.unit.value
+        if isinstance(self.category, Category):
+            self.category = self.category.value
+
         self._validate_sku()
         self._validate_quantity()
+        self._validate_unit()
+        self._validate_category()
         self._validate_min_stock_alert()
 
     def _validate_sku(self):
@@ -74,6 +85,16 @@ class Stock:
         """Ensure quantity is non-negative."""
         if self.quantity < 0:
             raise InvalidQuantityError()
+
+    def _validate_unit(self):
+        """Ensure unit is a valid choice."""
+        if not isinstance(self.unit, str) or self.unit not in self.ALLOWED_UNITS:
+            raise ValueError(f"Invalid unit: {self.unit}. Allowed: {self.ALLOWED_UNITS}")
+
+    def _validate_category(self):
+        """Ensure category is a valid choice."""
+        if not isinstance(self.category, str) or self.category not in self.ALLOWED_CATEGORIES:
+            raise ValueError(f"Invalid category: {self.category}. Allowed: {self.ALLOWED_CATEGORIES}")
 
     def _validate_min_stock_alert(self):
         """Validate minimum stock alert if provided."""
@@ -161,8 +182,8 @@ class Stock:
             "item_name": self.item_name,
             "sku": self.sku,
             "quantity": self.quantity,
-            "unit": self.unit.value,
-            "category": self.category.value,
+            "unit": self.unit,
+            "category": self.category,
             "min_stock_alert": self.min_stock_alert,
             "status": self.get_stock_status()
         }
